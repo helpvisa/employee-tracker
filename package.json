@@ -1,0 +1,27 @@
+{
+  "dependencies": {
+    "console.table": "^0.10.0",
+    "inquirer": "^9.1.2",
+    "mysql2": "^2.3.3"
+  },
+  "devDependencies": {
+    "jest": "^29.0.3"
+  },
+  "name": "employee-tracker",
+  "description": "Create and manage a database of employees from within the commandline.",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/helpvisa/employee-tracker.git"
+  },
+  "author": "Daniel Brackenbury",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/helpvisa/employee-tracker/issues"
+  },
+  "homepage": "https://github.com/helpvisa/employee-tracker#readme"
+}
