@@ -1,6 +1,66 @@
+// dependencies
+const db = require("../util/connection");
+
 // regular expression definitions
 const letterExpression = /[a-zA-Z]/;
 const specialExpression = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
+
+// attempt connection to database in order to populate prompts
+db.connect(err => {
+    // catch any possible connection errors
+    if (err) throw err;
+    // otherwise confirm connection
+    console.log("Successfully connected to your team's database.");
+});
+
+// create functions which populate arrays of choices to be used from within the prompts
+function populateDepartments() {
+    const sql = `SELECT name FROM department ORDER BY name`;
+
+    db.query(sql, (err, rows) => {
+        if (err) {
+            console.log(err);
+            return;
+        }
+        // map to array of just name, no objects
+        return rows.map(department => department.name);
+    });
+}
+
+function populateRoles() {
+    const sql = `SELECT title FROM role ORDER BY title`;
+
+    db.query(sql, (err, rows) => {
+        if (err) {
+            console.log(err);
+            return;
+        }
+        // map to array of just title, no objects
+        return rows.map(role => role.title);
+    });
+}
+
+function populateEmployees(returnEmpty) { // return empty bool option; returns additional "No manager" entry for update prompt
+    const sql = `SELECT first_name, last_name FROM employees ORDER BY last_name`;
+
+    db.query(sql, (err, rows) => {
+        if (err) {
+            console.log(err)
+            return;
+        }
+        // check returnEmpty bool
+        if (returnEmpty) {
+            // mapped array
+            const employees = rows.map(employee => employee.first_name + " " + employee.last_name);
+            // add no manager option
+            employees.push("NO MANAGER");
+            return employees;
+        } else {
+            // return mapped array with no modification
+            return rows.map(employee => employee.first_name + " " + employee.last_name);
+        }
+    });
+}
 
 // define the prompts used by the main loop
 // multi-purpose list of options shown to user on application start, can be reused
