@@ -1,5 +1,6 @@
 // dependencies
 const db = require("../util/connection");
+const inquirer = require('inquirer');
 
 // regular expression definitions
 const letterExpression = /[a-zA-Z]/;
@@ -14,183 +15,247 @@ db.connect(err => {
 });
 
 // create functions which populate arrays of choices to be used from within the prompts
-function populateDepartments() {
+async function populateDepartments() {
+    // construct query
     const sql = `SELECT name FROM department ORDER BY name`;
 
-    db.query(sql, (err, rows) => {
-        if (err) {
-            console.log(err);
-            return;
+    // get info from database
+    let departments = await db.promise().query(sql);
+
+    // map these departments to new array (see populateEmployees for small explanation)
+    departments = departments[0].map(department => {
+        const obj = {
+            name: department.name,
+            value: {
+                name: department.name,
+                id: department.id
+            }
         }
-        // map to array of just name, no objects
-        return rows.map(department => department.name);
+        return obj;
     });
+
+    // return this new array
+    return departments;
 }
 
-function populateRoles() {
+async function populateRoles() {
+    // construct query
     const sql = `SELECT title FROM role ORDER BY title`;
 
-    db.query(sql, (err, rows) => {
-        if (err) {
-            console.log(err);
-            return;
+    // get info from database
+    let roles = await db.promise().query(sql);
+
+    // map these roles to a new array (see populateEmployees for small explanation)
+    roles = roles[0].map(role => {
+        const obj = {
+            name: role.title,
+            value: {
+                title: role.title,
+                salary: role.salary,
+                department: role.department_id,
+                id: role.id
+            }
         }
-        // map to array of just title, no objects
-        return rows.map(role => role.title);
+        return obj;
     });
+
+    // return this new array of object
+    return roles;
 }
 
-function populateEmployees(returnEmpty) { // return empty bool option; returns additional "No manager" entry for update prompt
-    const sql = `SELECT first_name, last_name FROM employees ORDER BY last_name`;
+async function populateEmployees(returnEmpty) { // return empty bool option; returns additional "No manager" entry for update prompt
+    // construct query
+    const sql = `SELECT first_name, last_name, id FROM employees ORDER BY last_name`;
 
-    db.query(sql, (err, rows) => {
-        if (err) {
-            console.log(err)
-            return;
+    // get info from database
+    let employees = await db.promise().query(sql);
+
+    // map to a new array (name = what is displayed in inquirer, value = values used for modifications in code)
+    employees = employees[0].map(employee => {
+        const obj = {
+            name: employee.first_name + " " + employee.last_name,
+            value: {
+                firstName: employee.first_name,
+                lastName: employee.last_name,
+                role: employee.role_id,
+                manager: employee.manager_id,
+                id: employee.id
+            }
         }
-        // check returnEmpty bool
-        if (returnEmpty) {
-            // mapped array
-            const employees = rows.map(employee => employee.first_name + " " + employee.last_name);
-            // add no manager option
-            employees.push("NO MANAGER");
-            return employees;
-        } else {
-            // return mapped array with no modification
-            return rows.map(employee => employee.first_name + " " + employee.last_name);
-        }
+        return obj;
     });
+
+    // do we want to populate a "NO MANAGER" column?
+    if (returnEmpty) {
+        employees.push({
+            name: "NO MANAGER",
+            value: {
+                id: null // if id is null, no manager will be assigned in the database
+            }
+        });
+    }
+
+    // return this new array of objects
+    return employees;
 }
 
 // define the prompts used by the main loop
 // multi-purpose list of options shown to user on application start, can be reused
-const introPrompt = [
-    {
-        type: "list",
-        name: "options",
-        message: "Please make a selection.",
-        choices: ["View all departments",
-            "View all roles",
-            "View all employees",
-            "Add a department",
-            "Add a role",
-            "Add an employee",
-            "Update an employee's role",
-            "EXIT APPLICATION"] // capitalize to really *accentuate* that you're leaving and we'll miss you!
-    }
-]
+function introPrompt() {
+    return inquirer.prompt([
+        {
+            type: "list",
+            name: "options",
+            message: "Please make a selection.",
+            choices: ["View all departments",
+                "View all roles",
+                "View all employees",
+                "Add a department",
+                "Add a role",
+                "Add an employee",
+                "Update an employee's role",
+                "EXIT APPLICATION"] // capitalize to really *accentuate* that you're leaving and we'll miss you!
+        }
+    ]);
+}
 
 // shown when a department needs to be added
-const addDepartmentPrompt = [
-    {
-        type: "input",
-        name: "name",
-        message: "Please enter a name for the department you are adding: ",
-        validate: nameInput => {
-            if (nameInput) {
-                return true;
-            } else {
-                console.log("Please enter a name for the department.");
-                return false;
+function addDepartmentPrompt() {
+    return inquirer.prompt([
+        {
+            type: "input",
+            name: "name",
+            message: "Please enter a name for the department you are adding: ",
+            validate: nameInput => {
+                if (nameInput) {
+                    return true;
+                } else {
+                    console.log("Please enter a name for the department.");
+                    return false;
+                }
             }
         }
-    }
-]
+    ]);
+}
 
 // shown when a role needs to be added
-const addRolePrompt = [
-    {
-        type: "input",
-        name: "name",
-        message: "Please enter a name for the role you are adding: ",
-        validate: nameInput => {
-            if (nameInput) {
-                return true;
-            } else {
-                console.log("Please enter a name for the role.");
-                return false;
+async function addRolePrompt() {
+    // get array of departments
+    const departments = await populateDepartments();
+
+    // construct prompt
+    return inquirer.prompt([
+        {
+            type: "input",
+            name: "name",
+            message: "Please enter a name for the role you are adding: ",
+            validate: nameInput => {
+                if (nameInput) {
+                    return true;
+                } else {
+                    console.log("Please enter a name for the role.");
+                    return false;
+                }
             }
-        }
-    },
-    {
-        type: "input",
-        name: "salary",
-        message: "Please enter a salary for this role: ",
-        validate: salaryInput => {
-            // "regular expression"; checks for letters in the input
-            if (letterExpression.test(salaryInput) || specialExpression.test || salaryInput.length > 12) {
-                console.log("Please remove any letters or special characters from your input and ensure the salary is within 10 figures.");
-                return false;
-            } else {
-                return true;
+        },
+        {
+            type: "input",
+            name: "salary",
+            message: "Please enter a salary for this role: ",
+            validate: salaryInput => {
+                // "regular expression"; checks for letters in the input
+                if (letterExpression.test(salaryInput) || specialExpression.test || salaryInput.length > 12) {
+                    console.log("Please remove any letters or special characters from your input and ensure the salary is within 10 figures.");
+                    return false;
+                } else {
+                    return true;
+                }
             }
+        },
+        {
+            type: "list",
+            name: "department",
+            message: "Please select a department for this role.",
+            choices: departments // fill this in with a database query
         }
-    },
-    {
-        type: "list",
-        name: "department",
-        message: "Please select a department for this role.",
-        choices: [] // fill this in with a database query
-    }
-]
+    ]);
+}
 
 // shown when an employee needs to be added
-const addEmployeePrompt = [
-    {
-        type: "input",
-        name: "firstName",
-        message: "Please enter the employee's first name: ",
-        validate: nameInput => {
-            if (nameInput) {
-                return true;
-            } else {
-                console.log("Please enter a first name.");
-                return false;
+async function addEmployeePrompt() {
+    // populate employees array
+    const employees = await populateEmployees(true);
+    // populate roles array
+    const roles = await populateRoles();
+    // construct prompt
+    return inquirer.prompt([
+        {
+            type: "input",
+            name: "firstName",
+            message: "Please enter the employee's first name: ",
+            validate: nameInput => {
+                if (nameInput) {
+                    return true;
+                } else {
+                    console.log("Please enter a first name.");
+                    return false;
+                }
             }
-        }
-    },
-    {
-        type: "input",
-        name: "lastName",
-        message: "Please enter the employee's last name: ",
-        validate: nameInput => {
-            if (nameInput) {
-                return true;
-            } else {
-                console.log("Please enter a last name.");
-                return false;
+        },
+        {
+            type: "input",
+            name: "lastName",
+            message: "Please enter the employee's last name: ",
+            validate: nameInput => {
+                if (nameInput) {
+                    return true;
+                } else {
+                    console.log("Please enter a last name.");
+                    return false;
+                }
             }
+        },
+        {
+            type: "list",
+            name: "role",
+            message: "Please select the employee's role from the list.",
+            choices: roles // fill this in with database query
+        },
+        {
+            type: "list",
+            name: "manager",
+            message: "Please select the employee's manager from the list.",
+            choices: employees // fill this in with database query, add "no manager" choice to array as well
         }
-    },
-    {
-        type: "list",
-        name: "role",
-        message: "Please select the employee's role from the list.",
-        choices: [] // fill this in with database query
-    },
-    {
-        type: "list",
-        name: "manager",
-        message: "Please select the employee's manager from the list.",
-        choices: [] // fill this in with database query, add "no manager" choice to array as well
-    }
-]
+    ]);
+}
 
 // shown when an employee needs to be updated
-const updateEmployeePrompt = [
-    {
-        type: "list",
-        name: "employee",
-        message: "Please select an employee to update from the list.",
-        choices: [] // fill this in with database query
-    },
-    {
-        type: "list",
-        name: "role",
-        message: "Please select the employee's new role from the list.",
-        choices: [] // fill this in with database query
-    }
-]
+// formatted as a function, so that the values can be updated dynamically
+async function updateEmployeePrompt() {
+    // populate employees array
+    const employees = await populateEmployees(false);
+    // populate roles array
+    const roles = await populateRoles();
+    // use this to construct prompt, and return the values for use later in a main() function
+    return inquirer.prompt([
+        {
+            type: "list",
+            name: "employee",
+            message: "Please select an employee to update from the list.",
+            choices: employees // fill this in with database query
+        },
+        {
+            type: "list",
+            name: "role",
+            message: "Please select the employee's new role from the list.",
+            choices: roles // fill this in with database query
+        }
+    ]);
+}
+
+// testing
+updateEmployeePrompt();
 
 // export
 module.exports = {introPrompt, addDepartmentPrompt, addRolePrompt, addEmployeePrompt, updateEmployeePrompt};
