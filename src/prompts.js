@@ -17,7 +17,7 @@ db.connect(err => {
 // create functions which populate arrays of choices to be used from within the prompts
 async function populateDepartments() {
     // construct query
-    const sql = `SELECT name FROM department ORDER BY name`;
+    const sql = `SELECT name, id FROM department ORDER BY name`;
 
     // get info from database
     let departments = await db.promise().query(sql);
@@ -40,7 +40,7 @@ async function populateDepartments() {
 
 async function populateRoles() {
     // construct query
-    const sql = `SELECT title FROM role ORDER BY title`;
+    const sql = `SELECT title, salary, department_id, id FROM role ORDER BY title`;
 
     // get info from database
     let roles = await db.promise().query(sql);
@@ -65,7 +65,7 @@ async function populateRoles() {
 
 async function populateEmployees(returnEmpty) { // return empty bool option; returns additional "No manager" entry for update prompt
     // construct query
-    const sql = `SELECT first_name, last_name, id FROM employees ORDER BY last_name`;
+    const sql = `SELECT first_name, last_name, role_id, manager_id, id FROM employees ORDER BY last_name`;
 
     // get info from database
     let employees = await db.promise().query(sql);
@@ -253,9 +253,6 @@ async function updateEmployeePrompt() {
         }
     ]);
 }
-
-// testing
-updateEmployeePrompt();
 
 // export
 module.exports = {introPrompt, addDepartmentPrompt, addRolePrompt, addEmployeePrompt, updateEmployeePrompt};
