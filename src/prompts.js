@@ -101,7 +101,7 @@ async function populateEmployees(returnEmpty) { // return empty bool option; ret
 
 // define the prompts used by the main loop
 // multi-purpose list of options shown to user on application start, can be reused
-function introPrompt() {
+async function introPrompt() {
     return inquirer.prompt([
         {
             type: "list",
@@ -120,8 +120,8 @@ function introPrompt() {
 }
 
 // shown when a department needs to be added
-function addDepartmentPrompt() {
-    return inquirer.prompt([
+async function addDepartmentPrompt() {
+    return await inquirer.prompt([
         {
             type: "input",
             name: "name",
@@ -144,7 +144,7 @@ async function addRolePrompt() {
     const departments = await populateDepartments();
 
     // construct prompt
-    return inquirer.prompt([
+    return await inquirer.prompt([
         {
             type: "input",
             name: "name",
@@ -188,7 +188,7 @@ async function addEmployeePrompt() {
     // populate roles array
     const roles = await populateRoles();
     // construct prompt
-    return inquirer.prompt([
+    return await inquirer.prompt([
         {
             type: "input",
             name: "firstName",
@@ -238,7 +238,7 @@ async function updateEmployeePrompt() {
     // populate roles array
     const roles = await populateRoles();
     // use this to construct prompt, and return the values for use later in a main() function
-    return inquirer.prompt([
+    return await inquirer.prompt([
         {
             type: "list",
             name: "employee",
@@ -255,4 +255,5 @@ async function updateEmployeePrompt() {
 }
 
 // export
-module.exports = {introPrompt, addDepartmentPrompt, addRolePrompt, addEmployeePrompt, updateEmployeePrompt};
+module.exports = {introPrompt, addDepartmentPrompt, addRolePrompt, addEmployeePrompt, updateEmployeePrompt,
+                  populateDepartments, populateRoles, populateEmployees};
