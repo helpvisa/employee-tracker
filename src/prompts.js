@@ -11,7 +11,7 @@ db.connect(err => {
     // catch any possible connection errors
     if (err) throw err;
     // otherwise confirm connection
-    console.log("Successfully connected to your team's database.");
+    //console.log("Successfully connected to your team's database.");
 });
 
 // create functions which populate arrays of choices to be used from within the prompts
