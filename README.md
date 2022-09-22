@@ -27,6 +27,8 @@ In order to install the necessary dependencies to run the application, simply na
 
 The application can be run by typing "node index.js" from within the root directory of rest!
 
+Demonstration walkthrough video available at [this link.](https://www.youtube.com/watch?v=f3TeA_6g-k4)
+
 
 ## Images
 
