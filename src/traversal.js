@@ -2,8 +2,8 @@
 // dependencies
 const {introPrompt, addDepartmentPrompt, addRolePrompt, addEmployeePrompt, updateEmployeePrompt} = require("./prompts");
 const {populateDepartments, populateRoles, populateEmployees} = require("./prompts");
+const {db_addDepartment, db_addRole, db_addEmployee, db_updateEmployee} = require("../util/queries");
 const table = require("console.table");
-const db = require("../util/connection");
 
 // introduction screen w switch statement
 async function presentChoices() {
@@ -11,13 +11,13 @@ async function presentChoices() {
     // switch case for choice
     switch (choice.options) {
         case "View all departments":
-            await displayDepartments();
+            displayDepartments();
             break;
         case "View all roles":
-            await displayRoles();
+            displayRoles();
             break;
         case "View all employees":
-            await displayEmployees();
+            displayEmployees();
             break;
         case "Add a department":
             // call add department function

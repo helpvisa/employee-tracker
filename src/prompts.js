@@ -6,14 +6,6 @@ const inquirer = require('inquirer');
 const letterExpression = /[a-zA-Z]/;
 const specialExpression = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
 
-// attempt connection to database in order to populate prompts
-db.connect(err => {
-    // catch any possible connection errors
-    if (err) throw err;
-    // otherwise confirm connection
-    //console.log("Successfully connected to your team's database.");
-});
-
 // create functions which populate arrays of choices to be used from within the prompts
 async function populateDepartments() {
     // construct query
@@ -102,7 +94,7 @@ async function populateEmployees(returnEmpty) { // return empty bool option; ret
 // define the prompts used by the main loop
 // multi-purpose list of options shown to user on application start, can be reused
 async function introPrompt() {
-    return inquirer.prompt([
+    return await inquirer.prompt([
         {
             type: "list",
             name: "options",
