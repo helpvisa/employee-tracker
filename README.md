@@ -20,7 +20,13 @@ A commandline interface that allows you to create, store, and display your emplo
 
 ## Installation
 
-In order to install the necessary dependencies to run the application, simply navigate to the directory containing index.js (this should be in the root directory of the folder you've cloned from the repository) and run "npm install" in the commandline. Once this has been done, you can load the "db.sql" and "schema.sql" files located within the DB directory using the MySQL commandline in order to create the necessary databases/tables for the program to function. If you'd like to test the application with some dummy data to begin with, you can use the MySQL commandline to load the "seeds.sql" file contained within the db directory as well.
+In order to install the necessary dependencies to run the application, simply navigate to the directory containing index.js (this should be in the root directory of the folder you've cloned from the repository) and run "npm install" in the commandline.
+
+Once this has been done, you can load the "db.sql" and "schema.sql" files located within the DB directory using the MySQL commandline in order to create the necessary databases/tables for the program to function.
+
+The program requires a username and password in order to access your machine's MySQL database; the included .env.example file can be altered to include this information. Make sure to rename this file to .env in order for it to be properly loaded.
+
+If you'd like to test the application with some dummy data to begin with, you can use the MySQL commandline to load the "seeds.sql" file contained within the db directory as well.
 
 
 ## Usage
