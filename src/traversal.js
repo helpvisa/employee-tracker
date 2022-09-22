@@ -20,16 +20,16 @@ async function presentChoices() {
             displayEmployees();
             break;
         case "Add a department":
-            // call add department function
+            addDepartment();
             break;
         case "Add a role":
-            // call add role function
+            addRole();
             break;
         case "Add an employee":
-            // call add employee function
+            addEmployee();
             break;
         case "Update an employee's role":
-            // call update employee function
+            updateEmployee();
             break;
         default:
             console.log("Take care!");
@@ -61,5 +61,67 @@ async function displayEmployees() {
     presentChoices();
 }
 
+// add a department and loop
+async function addDepartment() {
+    const dept = await addDepartmentPrompt();
+
+    // add to database
+    let result = await db_addDepartment(dept.name);
+    if (result) {
+        console.log("Department added to database!");
+    } else {
+        console.log("Error; department not added.");
+    }
+
+    // loop
+    presentChoices();
+}
+
+// add a role and loop
+async function addRole() {
+    const role = await addRolePrompt();
+
+    // add to database
+    let result = await db_addRole(role.title, role.salary, role.department.id);
+    if (result) {
+        console.log("Role added to database!");
+    } else {
+        console.log("Error; role not added.");
+    }
+
+    // loop
+    presentChoices();
+}
+
+async function addEmployee() {
+    const employee = await addEmployeePrompt();
+
+    // add to database
+    let result = await db_addEmployee(employee.firstName, employee.lastName, employee.role.id, employee.manager.id);
+    if (result) {
+        console.log("Employee added to database!");
+    } else {
+        console.log("Error; employee not added.");
+    }
+
+    // loop
+    presentChoices();
+}
+
+async function updateEmployee() {
+    const employee = await updateEmployeePrompt();
+
+    // update in database
+    let result = await db_updateEmployee(employee.role.id, employee.employee.id);
+    if (result) {
+        console.log("Employee updated!");
+    } else {
+        console.log("Error; employee not updated.");
+    }
+
+    // loop
+    presentChoices();
+}
+
 // exports
-module.exports = {presentChoices};
+module.exports = {presentChoices}; // should be all I need for index

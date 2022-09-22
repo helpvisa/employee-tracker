@@ -139,8 +139,8 @@ async function addRolePrompt() {
     return await inquirer.prompt([
         {
             type: "input",
-            name: "name",
-            message: "Please enter a name for the role you are adding: ",
+            name: "title",
+            message: "Please enter a title for the role you are adding: ",
             validate: nameInput => {
                 if (nameInput) {
                     return true;
@@ -156,8 +156,8 @@ async function addRolePrompt() {
             message: "Please enter a salary for this role: ",
             validate: salaryInput => {
                 // "regular expression"; checks for letters in the input
-                if (letterExpression.test(salaryInput) || specialExpression.test || salaryInput.length > 12) {
-                    console.log("Please remove any letters or special characters from your input and ensure the salary is within 10 figures.");
+                if (letterExpression.test(salaryInput) || specialExpression.test(salaryInput) || salaryInput.length > 12) {
+                    console.log(" | Please remove any letters or special characters from your input and ensure the salary is within 10 figures.");
                     return false;
                 } else {
                     return true;

@@ -9,7 +9,7 @@ async function db_addDepartment(name) {
 
     let result = await db.promise().query(sql, params);
     // check if result was successful
-    if (result.affectedRows) {
+    if (result[0].affectedRows) {
         // department added
         return true;
     } else {
@@ -25,7 +25,7 @@ async function db_addRole(title, salary, department) {
 
     let result = await db.promise().query(sql, params);
     // check if result was successful
-    if (result.affectedRows) {
+    if (result[0].affectedRows) {
         // role added
         return true;
     } else {
@@ -36,12 +36,12 @@ async function db_addRole(title, salary, department) {
 
 // add an employee to the database
 async function db_addEmployee(first, last, role, manager) {
-    const sql = `INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUSE (?, ?, ?, ?)`;
+    const sql = `INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)`;
     const params = [first, last, role, manager];
 
     let result = await db.promise().query(sql, params);
     // check if result was successful
-    if (result.affectedRows) {
+    if (result[0].affectedRows) {
         // employee added
         return true;
     } else {
@@ -52,12 +52,12 @@ async function db_addEmployee(first, last, role, manager) {
 
 // update an employee in the database
 async function db_updateEmployee(role, employee) {
-    const sql = `UPDATE employees SET role = ? WHERE id = ?`;
+    const sql = `UPDATE employees SET role_id = ? WHERE id = ?`;
     const params = [role, employee];
 
     let result = await db.promise().query(sql, params);
     // check if update was successful
-    if (result.affectedRows) {
+    if (result[0].affectedRows) {
         // employee updated
         return true;
     } else {
