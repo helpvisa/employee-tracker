@@ -119,7 +119,7 @@ async function addDepartmentPrompt() {
             name: "name",
             message: "Please enter a name for the department you are adding: ",
             validate: nameInput => {
-                if (nameInput & nameInput.length < 30) {
+                if (nameInput || nameInput.length > 30) {
                     return true;
                 } else {
                     console.log("Please enter a name for the department that is under 30 characters.");
@@ -142,7 +142,7 @@ async function addRolePrompt() {
             name: "title",
             message: "Please enter a title for the role you are adding: ",
             validate: nameInput => {
-                if (nameInput & nameInput.length < 30) {
+                if (nameInput || nameInput.length > 30) {
                     return true;
                 } else {
                     console.log("Please enter a name for the role that is under 30 characters.");
@@ -186,7 +186,7 @@ async function addEmployeePrompt() {
             name: "firstName",
             message: "Please enter the employee's first name: ",
             validate: nameInput => {
-                if (nameInput & nameInput.length < 30) {
+                if (nameInput || nameInput.length > 30) {
                     return true;
                 } else {
                     console.log("Please enter a first name that is less than 30 characters.");
@@ -199,7 +199,7 @@ async function addEmployeePrompt() {
             name: "lastName",
             message: "Please enter the employee's last name: ",
             validate: nameInput => {
-                if (nameInput & nameInput.length < 30) {
+                if (nameInput || nameInput.length > 30) {
                     return true;
                 } else {
                     console.log("Please enter a last name that is less than 30 characters.");
