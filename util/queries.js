@@ -66,4 +66,31 @@ async function db_updateEmployee(role, employee) {
     }
 }
 
-module.exports = {db_addDepartment, db_addRole, db_addEmployee, db_updateEmployee};
+// fetch a single department from the database
+async function db_getDepartment(id) {
+    const sql = `SELECT name FROM department WHERE id = ?`;
+    const params = [id];
+
+    let result = await db.promise().query(sql, params);
+    return result[0][0].name; // why on earth is it formatted like this
+}
+
+// fetch a single role from the database
+async function db_getRole(id) {
+    const sql = `SELECT title FROM role WHERE id = ?`;
+    const params = [id];
+
+    let result = await db.promise().query(sql, params);
+    return result[0][0].title;
+}
+
+// fetch a single employee from the database
+async function db_getEmployee(id) {
+    const sql = `SELECT first_name, last_name FROM employees WHERE id = ?`;
+    const params = [id];
+
+    let result = await db.promise().query(sql, params);
+    return result[0][0]; // return whole object bc multiple keys
+}
+
+module.exports = {db_addDepartment, db_addRole, db_addEmployee, db_updateEmployee, db_getDepartment, db_getRole, db_getEmployee};

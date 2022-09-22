@@ -2,7 +2,7 @@
 // dependencies
 const {introPrompt, addDepartmentPrompt, addRolePrompt, addEmployeePrompt, updateEmployeePrompt} = require("./prompts");
 const {populateDepartments, populateRoles, populateEmployees} = require("./prompts");
-const {db_addDepartment, db_addRole, db_addEmployee, db_updateEmployee} = require("../util/queries");
+const {db_addDepartment, db_addRole, db_addEmployee, db_updateEmployee, db_getDepartment, db_getRole, db_getEmployee} = require("../util/queries");
 const table = require("console.table");
 const db = require("../util/connection");
 
@@ -42,7 +42,17 @@ async function presentChoices() {
 // display departments and loop
 async function displayDepartments() {
     const departments = await populateDepartments();
-    console.log(departments); // replace with console.table
+    // generate columns
+    columns = departments.map(dept => {
+        entry = {
+            Name: dept.name,
+            ID: dept.value.id
+        }
+        return entry;
+    });
+    // render table
+    console.table(columns);
+
     // loop
     presentChoices();
 }
@@ -50,7 +60,20 @@ async function displayDepartments() {
 // display roles and loop
 async function displayRoles() {
     const roles = await populateRoles();
-    console.log(roles); // replace with console.table
+    // generate columns
+    columns = await Promise.all(roles.map(async role => {
+        let dept = await db_getDepartment(role.value.department);
+        entry = {
+            Title: role.value.title,
+            Salary: role.value.salary,
+            Department: dept,
+            ID: role.value.id
+        }
+        return entry;
+    }));
+    // render columns
+    console.table(columns);
+    
     // loop
     presentChoices();
 }
@@ -58,7 +81,29 @@ async function displayRoles() {
 // display employees and loop
 async function displayEmployees() {
     const employees = await populateEmployees(false);
-    console.log(employees); // replace with console.table
+    // generate columns
+    columns = await Promise.all(employees.map(async emp => {
+        let role = await db_getRole(emp.value.role);
+        let manager = await db_getEmployee(emp.value.manager);
+        // convert to string
+        if (!manager) {
+            manager = "NO MANAGER";
+        } else {
+            manager = manager.first_name + " " + manager.last_name;
+        }
+
+        entry = {
+            "First Name": emp.value.firstName,
+            "Last Name": emp.value.lastName,
+            Role: role,
+            Manager: manager,
+            ID: emp.value.id
+        }
+        return entry;
+    }));
+    // render columns
+    console.table(columns);
+    
     // loop
     presentChoices();
 }
