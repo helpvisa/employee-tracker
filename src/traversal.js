@@ -4,6 +4,7 @@ const {introPrompt, addDepartmentPrompt, addRolePrompt, addEmployeePrompt, updat
 const {populateDepartments, populateRoles, populateEmployees} = require("./prompts");
 const {db_addDepartment, db_addRole, db_addEmployee, db_updateEmployee} = require("../util/queries");
 const table = require("console.table");
+const db = require("../util/connection");
 
 // introduction screen w switch statement
 async function presentChoices() {
@@ -32,6 +33,7 @@ async function presentChoices() {
             updateEmployee();
             break;
         default:
+            db.end();
             console.log("Take care!");
             break;
     }
